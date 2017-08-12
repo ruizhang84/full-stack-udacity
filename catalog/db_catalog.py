@@ -36,6 +36,7 @@ class Item(Base):
                 'category_id': self.category_id
                }
 
+# user account
 class User(Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
