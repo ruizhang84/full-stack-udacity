@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+{% block body %}
+  <main class="main add-section">
+    <header class="title">
+      <h2>Add Item</h2>
+    </header> 
+
+    <form action="#" method = "post">
+      <div class="form-group">
+        <label for="name">Title</label>
+        <input type="text" class="form-control" maxlength="50" name="name">
+      </div>
+
+      <div class="form-group">
+        <label for="descript">Description</label>
+        <input type="text" class="form-control" name="descript">
+      </div>
+
+      <div class="form-group">
+        <label for="category">Category</label>
+        <select name='category'>
+        {% for item in categories%}
+           <option value="{{item.id}}"> {{ item.name }}</option>
+        {% endfor %}
+        </select>
+      </div>
+
+      <input class="btn btn-info" type="submit" value="Submit">
+    </form>
+
+  </main>
+
+
+{% endblock %}

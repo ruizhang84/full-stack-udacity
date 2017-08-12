@@ -1,0 +1,71 @@
+{% extends 'layout_signin.html' %}
+{% block body %}
+  <main class="main signup-section">
+    <header class="title">
+      <h2>Login</h2>
+    </header> 
+
+    <form method="POST" action="{{url_for('signin')}}">
+      {{ form.hidden_tag() }}
+      <div class="form-group">
+        {{ form.username.label }}
+          {% if form.username.errors %}
+            {% for error in form.username.errors %}
+              <p class="text-warning error-message">{{ error }}</p>
+            {% endfor %}
+          {% endif %}
+        {{ form.username }}
+      </div>
+
+      <div class="form-group">
+        {{ form.password.label }}
+          {% if form.password.errors %}
+            {% for error in form.password.errors %}
+              <p class="text-warning error-message">{{ error }}</p>
+            {% endfor %}
+          {% endif %}
+        {{ form.password }}
+      </div>
+      <input class="btn btn-info" type="submit" value="Submit">
+      <a class="signup" href="{{url_for('signup')}}">Sign Up!</a>
+    </form>
+
+    <!-- Google Sing In Button -->
+    <div class="g-signin2"
+        data-scope="openid profile email"
+        data-theme="dark"
+        data-accesstype="offline"
+        data-onsuccess="onSignIn"
+        data-onfailure="onSignInFailure">
+    </div>
+    <div id="sign_feedback"></div>
+
+  </main>
+
+
+
+  <script>
+    function onSignIn(googleUser) {
+      $.ajax({url: "{{url_for('gconnect', state=state)}}",
+              type: 'POST',
+              data: googleUser.code,
+              processData: false,
+              contentType: 'application/octet-stream; charset=utf-8',
+              success: callBack
+      });
+    }
+    function callBack(responses) {
+      $('#sign_feedback').html('Redirecting...');
+      if (responses){
+        window.location.href="{{url_for('categoryShow')}}"
+      }
+      else {
+        $('#sign_feedback').html('Failed to make a server-side call. Please check  your configuration.');
+      }
+    }
+    function onSignInFailure(error) {
+      $('#sign_feedback').html(error);
+    }
+  </script>
+
+{% endblock %}

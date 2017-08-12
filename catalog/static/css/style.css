@@ -1,0 +1,64 @@
+body {
+  background-color: lightgray;
+  font-family: times, Georgia, Serif;
+}
+
+h1 {
+  color: white;
+  font-weight:600
+}
+h2 {
+  color: MidnightBlue; 
+}
+
+form  { display: table;      }
+label { display: table-cell; }
+input { display: table-cell; }
+
+.sep {
+  border-right: 1px solid Silver;
+}
+
+.main {
+  background-color: white;
+  border-color: lightgray;
+  padding-left: 1em;
+  padding-right: 1em;
+  padding-bottom: 1em;
+}
+
+.maincontent{
+  padding-top: 1em;
+}
+
+.title {
+  padding-top: 0.2em;
+}
+
+.g-signin2{
+  padding-top: 1em;
+}
+
+.signup {
+  padding-top: 1em;
+  padding-left: 1em;
+}
+
+.warning {
+  font-weight: bold;
+}
+
+.logbutton {
+  padding-top: 1em;
+}
+.bg-pageheader {
+  background-color: #191970
+}
+
+#sign_feedback {
+  color: red;
+}
+
+#idd {
+  padding-top: 1em;
+}

@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+{% block body %}
+<div class='main row'>
+  <aside class='col-xs-12 col-sm-4 col-md-4 col-lg-4'>
+    <h2>Categories</h2>
+    <ul id="navigation">
+    {% for item in categories %}
+      <li><a href="{{url_for('categoryMenu', category_name=item.name)}}">{{ item.name}}</a></li>
+    {% endfor %}
+    </ul>
+  </aside>
+
+  <section class='col-xs-12 col-sm-8 col-md-8 col-lg-8'>
+    {% if 'email' in login_session %}
+      <a href="{{url_for('newItem')}}">Add Item</a>
+    {% endif %}
+    <h2>{{category.name}} Items ({{ items|length }} items)</h2>
+    <ul id="items_show">
+    {% for item in items %}
+      <li><a href="{{url_for('description', category_name=category.name, item_name=item.name)}}">{{ item.name}}</a></li>
+    {% endfor %}
+    </ul>
+  </section>
+
+</div>
+{% endblock %}

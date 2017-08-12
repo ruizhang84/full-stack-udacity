@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="google-signin-client_id" content="429476986185-fgqguqrm5cjd2nh61gu7gjl81norqpvp.apps.googleusercontent.com">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+    <title>menus</title>
+  </head>
+<body>
+  <div class="bg-pageheader">
+    <div class="container">
+      <header class="row justify-content-between">
+        <span class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+          <h1>Catalog App</h1>
+        </span>
+      </header>
+    </div><!-- div container -->
+  </div>
+
+  <div class="maincontent container">
+    {% block body %}
+    {% endblock %}
+  </div><!-- div container -->
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="{{url_for('static', filename='js/tether.min.js')}}"></script>
+  <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
+  <script src="{{url_for('static', filename='js/scripts.js')}}"></script>
+  <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+</html>
