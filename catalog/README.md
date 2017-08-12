@@ -6,7 +6,7 @@
 - Open the website. http://localhost:8000.
 - To create or modify the database, run the lotsofitems.py.
 
-## files structures
+## FILES
 - \static: css, js
 - \tempalte: html
 - flaskr.py: to run website
