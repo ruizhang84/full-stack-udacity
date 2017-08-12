@@ -12,5 +12,5 @@
 - flaskr.py: to run website
 - db_catalog.py: model of website
 - form.py: login and logout forms
-- client_secrets: google account api 
+- client_secrets.json: google account api 
 - catalog.db: Sqlite3 database
