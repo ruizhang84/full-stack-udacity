@@ -1,6 +1,15 @@
 from __future__ import print_function
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, g, make_response
-from flask import flash, jsonify
+from flask import (Flask,
+                   render_template,
+                   request,
+                   redirect,
+                   url_for,
+                   flash,
+                   jsonify,
+                   g,
+                   make_response,
+                   flash,
+                   jsonify)
 from flask_httpauth import HTTPBasicAuth
 from flask import session as login_session
 from sqlalchemy import create_engine, desc
@@ -10,12 +19,22 @@ from db_catalog import Base, Category, Item, User
 from form import SignupForm, SigninForm
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
-import os, sys, random, string, requests, httplib2, json
+from functools import wraps
+import os
+import sys
+import random
+import string
+import requests
+import httplib2
+import json
+
 
 auth = HTTPBasicAuth()
 app = Flask(__name__)
-#os.urandom(32)
-app.secret_key = '\xd4\x9bV\xb3\xfe\xef\xa9l\xd7\x90\xb9\x82\xa99\xd1$ad"\x80\'\xca=*\xfe\'.\xba\xff\xa7\xb5Y'
+# os.urandom(32)
+s = ('\xd4\x9bV\xb3\xfe\xef\xa9l\xd7\x90\xb9\x82\xa99\xd1$ad"',
+     '\x80\'\xca=*\xfe\'.\xba\xff\xa7\xb5Y')
+app.secret_key = s
 
 engine = create_engine('sqlite:///catalog.db')
 Base.metadata.bind = engine
@@ -23,8 +42,19 @@ Base.metadata.bind = engine
 Session = sessionmaker(bind=engine)
 session = Session()
 
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # herein user email instead of username
+        if 'email' not in login_session:
+            return redirect('/catalog/signin')
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 #########################################
-#Json session
+# Json session
 @app.route('/catalog.json')
 def CategoryJSON():
     json_cat = []
@@ -36,30 +66,42 @@ def CategoryJSON():
         json_cat.append(temp)
     return jsonify(Category=json_cat)
 
+
 #########################################
-#basic view
+# basic view
 @app.route('/')
 def categoryShow():
     categories = session.query(Category).all()
     latest_items = session.query(Item).order_by(desc(Item.time)).limit(7).all()
     items = []
     for item in latest_items:
-        category = session.query(Category).filter_by(id=item.category_id).first()
+        category = session.query(Category).filter_by(
+                                id=item.category_id).first()
         items.append([category.name, item.name])
-    return render_template('welcome.html', categories=categories, items=items, login_session=login_session)
+    return render_template('welcome.html', categories=categories, 
+                           items=items, login_session=login_session)
 
-@app.route('/catalog/<category_name>/items')
+
+@app.route('/catalog/<path:category_name>/items')
 def categoryMenu(category_name):
     categories = session.query(Category).all()
-    category = session.query(Category).filter_by(name=category_name).first()
+    category = session.query(Category).filter_by(
+                             name=category_name).first()
     items = session.query(Item).filter_by(category_id=category.id).all()
-    return render_template('menu.html', categories=categories, category=category, items=items, login_session=login_session)
+    return render_template('menu.html', categories=categories, 
+                           category=category, items=items, 
+                           login_session=login_session)
 
-@app.route('/catalog/<category_name>/<item_name>')
+
+@app.route('/catalog/<path:category_name>/<path:item_name>')
 def description(category_name, item_name):
-    category = session.query(Category).filter_by(name=category_name).first()
-    item = session.query(Item).filter_by(name=item_name, category_id=category.id).one()
-    return render_template('descript.html', category=category, item=item, login_session=login_session)
+    category = session.query(Category).filter_by(
+                             name=category_name).first()
+    item = session.query(Item).filter_by(name=item_name, 
+                                         category_id=category.id).one()
+    return render_template('descript.html', category=category, 
+                           item=item, login_session=login_session)
+
 
 @auth.verify_password
 def verify_password(username, password):
@@ -69,8 +111,9 @@ def verify_password(username, password):
     g.user = user
     return True
 
+
 #########################################
-#login session
+# login session
 @app.route('/catalog/signup', methods=['POST', 'GET'])
 def signup():
     form = SignupForm()
@@ -82,6 +125,7 @@ def signup():
         login_session['email'] = form.email.data
         return redirect(url_for('categoryShow'))
     return render_template('signup.html', form=form)
+
 
 @app.route('/catalog/signin', methods=['POST', 'GET'])
 def signin():
@@ -103,6 +147,7 @@ def signin():
         return redirect(url_for('categoryShow'))
     return render_template('signin.html', form=form, state=state)
 
+
 @app.route('/catalog/signout')
 def signout():
     login_session.pop('email', None)
@@ -115,21 +160,21 @@ def signout():
         login_session.pop('access_token', None)
     return redirect(url_for('categoryShow'))
 
-@app.route('/catalog/gconnect/<state>', methods=['POST'])
+
+@app.route('/catalog/gconnect/<path:state>', methods=['POST'])
 def gconnect(state):
     # Validate state token
     if state != login_session['state']:
-        respose = make_response(json.dumps('Invalid state parameter.'), 401)
+        response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
     # Obtain authorization code
     code = request.data
-    #print (code, file=sys.stderr)
+    # print (code, file=sys.stderr)
 
     # Upgrade the authorization code into a credentials object
     try:
-        flow = flow_from_clientsecrets('client_secrets.json',
-                               scope='')
+        flow = flow_from_clientsecrets('client_secrets.json', scope='')
         flow.redirect_uri = 'postmessage'
         credentials = flow.step2_exchange(code)
     except FlowExchangeError:
@@ -138,8 +183,8 @@ def gconnect(state):
         response.headers['Content-Type'] = 'application/json'
         return response
 
-    #http_auth = httplib2.Http()
-    #http_auth = credentials.authorize(http_auth)
+    # http_auth = httplib2.Http()
+    # http_auth = credentials.authorize(http_auth)
     login_session['access_token'] = credentials.access_token
 
     # Get user info
@@ -152,33 +197,50 @@ def gconnect(state):
     resp = make_response("Accepted", 200)
     return resp
 
+
 #########################################
-#Add/Edit session
+# Add/Edit session
 @app.route('/catalog/new', methods=['POST', 'GET'])
+@login_required
 def newItem():
-    #if 'email' in login_session:
-    #    return redirect(url_for('categoryShow'))
+    # if 'email' in login_session:
+    #     return redirect(url_for('categoryShow'))
     categories = session.query(Category).all()
 
     if request.method == 'POST':
-        #check if name has been used.
-        oldItem = session.query(Item).filter_by(category_id=request.form['category'], name=request.form['name']).first()
+        # check if name has been used.
+        oldItem = session.query(Item).\
+                          filter_by(category_id=request.form['category'], 
+                                    name=request.form['name']
+                                    ).first()
+        user = session.query(User).filter_by(
+                                            email=login_session['email']
+                                            ).first()
         if oldItem is not None:
             return render_template('new.html', categories=categories)
-        newItem = Item(name=request.form['name'], description=request.form['descript'], \
-                       time=datetime.utcnow() , category_id=request.form['category'])
+        newItem = Item(name=request.form['name'], 
+                       description=request.form['descript'],
+                       time=datetime.utcnow(), 
+                       category_id=request.form['category'],
+                       user_id=user.id)
         session.add(newItem)
         session.commit()
         return redirect(url_for('categoryShow'))
-    return render_template('new.html', categories=categories, login_session=login_session)
+    return render_template('new.html', 
+                           categories=categories, 
+                           login_session=login_session)
 
-@app.route('/catalog/<item_name>/edit', methods=['POST', 'GET'])
+
+@app.route('/catalog/<path:item_name>/edit', methods=['POST', 'GET'])
+@login_required
 def editItem(item_name):
-    #if 'email' in login_session:
-    #    return redirect(url_for('categoryShow'))
-
     categories = session.query(Category).all()
     item = session.query(Item).filter_by(name=item_name).first()
+    user = session.query(User).filter_by(email=login_session['email']).first()
+    # authorization
+    if user is None or user.id != item.user_id:
+        return redirect(url_for('categoryShow'))
+
     if request.method == 'POST':
         if request.form['name'] is not None:
             item.name = request.form['name']
@@ -189,13 +251,17 @@ def editItem(item_name):
         session.add(item)
         session.commit()
         return redirect(url_for('categoryShow'))
-    return render_template('edit.html', categories=categories, item=item, login_session=login_session)
+    return render_template('edit.html', categories=categories, 
+                           item=item, login_session=login_session)
 
-@app.route('/catalog/<item_name>/delete', methods=['POST', 'GET'])
+
+@app.route('/catalog/<path:item_name>/delete', methods=['POST', 'GET'])
+@login_required
 def deleteItem(item_name):
-    #if 'email' in login_session:
-    #    return redirect(url_for('categoryShow'))
     item = session.query(Item).filter_by(name=item_name).first()
+    user = session.query(User).filter_by(email=login_session['email']).first()
+    if user is None or user.id != item.user_id:
+        return redirect(url_for('categoryShow'))
     if request.method == 'POST':
         session.delete(item)
         session.commit()
@@ -205,11 +271,4 @@ def deleteItem(item_name):
 
 if __name__ == '__main__':
     app.debug = True
-    app.run(host = '0.0.0.0', port=8000)
-
-
-
-
-
-
-
+    app.run(host='0.0.0.0', port=8000)

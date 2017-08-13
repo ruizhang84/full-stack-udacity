@@ -26,7 +26,10 @@ class Item(Base):
     name = Column(String(50), nullable=False)
     description = Column(String(250))
     time = Column(DateTime, nullable=False)
+
     category_id = Column(Integer, ForeignKey('category.id'))
+    user_id = Column(Integer, ForeignKey('user.id'))
+
     @property
     def serialize(self):
         return {
@@ -43,6 +46,7 @@ class User(Base):
     username = Column(String(32), index=True)
     email = Column(String)
     password_hash = Column(String(64))
+    items = relationship('Item', backref="user")
 
     def hash_password(self, password):
         self.password_hash = custom_app_context.encrypt(password)
