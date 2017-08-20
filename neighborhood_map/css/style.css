@@ -31,7 +31,7 @@ form {
 
 ul {
   height: 90%;
-  margin: 0;
+  margin: 10px;
   padding: 0;
   list-style-type: none;
   overflow: auto;
@@ -53,6 +53,12 @@ li a:hover {
   background-color: #555;
   color: white;
 }
+
+li a.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
 
 #map {
   height: 100%;

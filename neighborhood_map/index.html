@@ -9,14 +9,12 @@
   </head>
 
   <body>
-
-
     <div class="container-fluild">
       <main id="map"></main>
 
       <div class="row-fluid" >
         <header>
-          <input data-bind="click: hiddenBar, style:{width: '20px', margin: showMessage()? '10px 10px 10px 250px': '10px 10px 10px 40px'}" 
+          <input data-bind="click: hiddenBar, style:{width: '20px', margin: showMessage()? '10px 10px 10px 260px': '10px 10px 10px 40px'}" 
                  type="image" src="img/menu.png" alt="Menu">
         </header> 
 
@@ -27,21 +25,21 @@
             <button data-bind="click: filterMap" type="button" class="btn btn-primary btn-sm">Filter</button>
           </form>
           <ul data-bind="foreach: restaurant">
-            <li><a href="#" data-bind="click: function(data, event) { markerSelect($data[0], $data[1], data, event) }, text: $data[0].name"></a></li>
+            <li><a class="restaurantli" href="#" data-bind="click: function(data, event) {colorChange($index(), data, event); markerSelect($data[0], $data[1], data, event); }, text: $data[0].name"></a></li>
           </ul>
         </nav>
 
 
       </div> <!--row-->
     </div><!--continer -->
-  </body>
 
-
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMtwEei7IgwtxIHqKHoFNJgzE2mdVW9lw&libraries=places&callback=initMap" async defer></script>
+  
   <script src="js/jquery.min.js"></script>
   <script src="js/knockout.js"></script>
   <script src="js/tether.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/scripts.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMtwEei7IgwtxIHqKHoFNJgzE2mdVW9lw&libraries=places&callback=initMap" async defer onerror="mapError()"></script>
+  </body>
 
 </html>

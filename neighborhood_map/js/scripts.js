@@ -49,6 +49,13 @@ function search(results, status){
   }
 }
 
+mapError = () => {
+  // Error handling
+  console.log("error on maps!");
+  alert("map loading error!");
+
+};
+
 // maps marker & foursquare review
 const clientId = '1BKIHPJRF4X1IYNYTVG3KVQU01D554SFUQTO5YUQSSH1ERVL';
 const clientSecret = 'ZTPSRIOAUPU4XC1XUPJZBGHOSBC5NWBZFZCQYEUHN50IPGWI';
@@ -62,7 +69,8 @@ function createMarker(place) {
   let placeLoc = place.geometry.location;
   var marker = new google.maps.Marker({
     map: map,
-    position:placeLoc
+    position:placeLoc,
+    animation: google.maps.Animation.DROP
   });
   markers.push([place, marker]);
 
@@ -73,8 +81,10 @@ function createMarker(place) {
   });
 }
 
+
 function markerSelect (place, marker) {
   let content = '<p class="h4 text-primary">' + place.name + '</p>';
+
   // ajax to retreive info
   $.ajax({
     url:'https://api.foursquare.com/v2/venues/search',
@@ -88,23 +98,28 @@ function markerSelect (place, marker) {
           },
     dataType: "json",
     success: function( data ) {
-      var place_data = data["response"]["venues"][0];
-      if (place_data['contact'].hasOwnProperty('formattedPhone'))
-          content += '<p>' + place_data['contact']['formattedPhone'] +'</p>';
-      if (place_data['location'].hasOwnProperty('formattedAddress'))
-          content += '<p>' + place_data['location']['formattedAddress'] + '</p>';
+      var place_data = data.response.venues[0];
+      if (place_data.contact.hasOwnProperty('formattedPhone'))
+          content += '<p>' + place_data.contact.formattedPhone +'</p>';
+      if (place_data.location.hasOwnProperty('formattedAddress'))
+          content += '<p>' + place_data.location.formattedAddress + '</p>';
       if (place_data.hasOwnProperty('url'))
-          content += '<p>' + place_data['url'];
-      if (place_data['contact'].hasOwnProperty('twitter'))
-          content += '<p> Twitter: @' + place_data['contact']['twitter'] + '</p>'
+          content += '<p>' + place_data.url;
+      if (place_data.contact.hasOwnProperty('twitter'))
+          content += '<p> Twitter: @' + place_data.contact.twitter + '</p>';
       //console.log( JSON.stringify(place_data) );
       infowindow.setContent(content);
       infowindow.open(map, marker);
+      marker.setAnimation(google.maps.Animation.BOUNCE);
+      setTimeout(function() {
+        marker.setAnimation(null)
+      }, 2000);
     }
   })
   .fail(function() {
     console.log("error");
     // place name as only info
+    content += '<p> error loading info.. </p>'
     infowindow.setContent(content);
     infowindow.open(map, marker);
   });
@@ -120,14 +135,24 @@ function filterMap(){
     if (place_name.indexOf(viewModel.filtered()) !== -1){
       // Sets the map on all markers in the array.
       markers[i][1].setMap(map);
-      viewModel.restaurant.push(markers[i])
+      viewModel.restaurant.push(markers[i]);
     }else{
       markers[i][1].setMap(null);
     }
   }
 }
 
-
+// update the restaurant locations list, color changes for selected
+function colorChange(idx){
+  var lItems = document.getElementsByClassName('restaurantli');
+  for (var i = 0; i <lItems.length; i++) {
+    if (i == idx){
+      lItems[i].className = "restaurantli active";
+    }else{
+      lItems[i].className = "restaurantli";
+    }
+  }
+}
 
 
 
